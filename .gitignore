@@ -1,0 +1,38 @@
+# IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# Eclipse
+.project
+.classpath
+.settings/
+
+# NetBeans
+.nb-gradle/
+nbproject/
+
+# Maven
+target/
+*.log
+
+# Gradle
+.gradle/
+build/
+
+# Spring Boot specific
+*.jar
+*.war
+*.ear
+
+# System Files
+.DS_Store
+Thumbs.db
+
+# Local environment configuration files
+application.properties
+application.yml
+
+# Log files
+*.log
