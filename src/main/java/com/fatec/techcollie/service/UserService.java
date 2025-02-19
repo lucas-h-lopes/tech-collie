@@ -21,6 +21,7 @@ public class UserService {
     @Transactional
     public User insert(User user){
         try{
+            user.setUsername("@".concat(user.getUsername()));
             return userRepository.save(user);
         }catch(DataIntegrityViolationException e){
             log.info("Error: ", e);
