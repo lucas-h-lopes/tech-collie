@@ -18,11 +18,11 @@ import java.util.Objects;
 public class User implements Serializable {
 
     public User(UserCreateDto dto){
-        this.name = dto.getName();
-        this.surname = dto.getSurname();
-        this.password = dto.getPassword();
-        this.email = dto.getEmail();
-        this.username = dto.getUsername();
+        this.name = dto.name();
+        this.surname = dto.surname();
+        this.password = dto.password();
+        this.email = dto.email();
+        this.username = dto.username();
     }
 
     @Id

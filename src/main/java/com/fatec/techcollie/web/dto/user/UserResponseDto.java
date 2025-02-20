@@ -8,30 +8,27 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 
-@Getter @Setter
-public class UserResponseDto {
-
-    private Integer id;
-    private String username;
-    private String name;
-    private String surname;
-    private String email;
-    private LocalDate birthdate;
-    private Address address;
-    private Seniority seniority;
-    private String areaInterest;
-    private String profileUrl;
+public record UserResponseDto(Integer id,
+                              String username,
+                              String name,
+                              String surname,
+                              String email,
+                              LocalDate birthdate,
+                              Address address,
+                              Seniority seniority,
+                              String areaInterest,
+                              String profileUrl) {
 
     public UserResponseDto(User user){
-        this.id = user.getId();
-        this.username = user.getUsername();
-        this.name = user.getName();
-        this.surname = user.getSurname();
-        this.email = user.getEmail();
-        this.birthdate = user.getBirthdate();
-        this.address = user.getAddress();
-        this.seniority = user.getSeniority();
-        this.areaInterest = user.getAreaInterest();
-        this.profileUrl = user.getProfilePicUrl();
+        this(user.getId(),
+                user.getUsername(),
+                user.getName(),
+                user.getSurname(),
+                user.getEmail(),
+                user.getBirthdate(),
+                user.getAddress(),
+                user.getSeniority(),
+                user.getAreaInterest(),
+                user.getProfilePicUrl());
     }
 }
