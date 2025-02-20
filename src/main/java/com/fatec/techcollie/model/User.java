@@ -1,20 +1,28 @@
 package com.fatec.techcollie.model;
 
 import com.fatec.techcollie.model.enums.Seniority;
+import com.fatec.techcollie.model.enums.UserRole;
 import com.fatec.techcollie.web.dto.user.UserCreateDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
 @Table(name = "users")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 public class User implements Serializable {
 
     public User(UserCreateDto dto){
@@ -51,6 +59,24 @@ public class User implements Serializable {
     private String profilePicUrl;
     @Column(name = "area_interest")
     private String areaInterest;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role")
+    private UserRole role = UserRole.MINIMUM_ACCESS;
+
+    @CreatedBy
+    @Column(name = "created_by", columnDefinition = "varchar(200) default 'Anonymous'")
+    private String createdBy;
+
+    @CreatedDate
+    @Column(name = "created_at", columnDefinition = "timestamp")
+    private LocalDateTime createdAt;
+    @LastModifiedDate
+    @Column(name = "last_modified_at", columnDefinition = "timestamp")
+    private LocalDateTime lastModifiedAt;
+    @Column(name = "last_modified_by")
+    @LastModifiedBy
+    private String lastModifiedBy;
 
     @Override
     public boolean equals(Object o) {
