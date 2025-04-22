@@ -2,7 +2,7 @@ package com.fatec.techcollie.model;
 
 import com.fatec.techcollie.model.enums.Seniority;
 import com.fatec.techcollie.model.enums.UserRole;
-import com.fatec.techcollie.web.dto.user.UserCreateDto;
+import com.fatec.techcollie.web.dto.user.UserCreateDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -39,9 +39,9 @@ public class User implements Serializable {
     private String password;
     @Column(name = "surname", nullable = false, length = 50)
     private String surname;
-    @Column(name = "birthdate")
-    private LocalDate birthdate;
-    @OneToOne
+    @Column(name = "birth_date")
+    private LocalDate birthDate;
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     @JoinColumn(name = "address_id")
     private Address address;
     @Column(name = "seniority")
@@ -49,8 +49,8 @@ public class User implements Serializable {
     private Seniority seniority;
     @Column(name = "profile_url")
     private String profilePicUrl;
-    @Column(name = "area_interest")
-    private String areaInterest;
+    @Column(name = "interest_area")
+    private String interestArea;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role")
@@ -70,7 +70,7 @@ public class User implements Serializable {
     @LastModifiedBy
     private String lastModifiedBy;
 
-    public User(UserCreateDto dto){
+    public User(UserCreateDTO dto){
         this.name = dto.name();
         this.surname = dto.surname();
         this.password = dto.password();
@@ -82,11 +82,11 @@ public class User implements Serializable {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return Objects.equals(id, user.id) && Objects.equals(username, user.username) && Objects.equals(name, user.name) && Objects.equals(email, user.email) && Objects.equals(password, user.password) && Objects.equals(surname, user.surname) && Objects.equals(birthdate, user.birthdate) && Objects.equals(address, user.address) && seniority == user.seniority && Objects.equals(profilePicUrl, user.profilePicUrl);
+        return Objects.equals(id, user.id) && Objects.equals(username, user.username) && Objects.equals(name, user.name) && Objects.equals(email, user.email) && Objects.equals(password, user.password) && Objects.equals(surname, user.surname) && Objects.equals(birthDate, user.birthDate) && Objects.equals(address, user.address) && seniority == user.seniority && Objects.equals(profilePicUrl, user.profilePicUrl);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, username, name, email, password,areaInterest, surname, birthdate, address, seniority, profilePicUrl);
+        return Objects.hash(id, username, name, email, password, interestArea, surname, birthDate, address, seniority, profilePicUrl);
     }
 }
