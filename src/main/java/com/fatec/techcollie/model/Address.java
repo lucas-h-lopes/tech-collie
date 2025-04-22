@@ -17,11 +17,11 @@ public class Address implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    @Column(name = "city", length = 35)
+    @Column(name = "city", length = 100)
     private String city;
-    @Column(name = "state", length = 2)
+    @Column(name = "state", length = 50)
     private String state;
-    @Column(name = "country", length = 50)
+    @Column(name = "country", length = 100)
     private String country;
 
     @Override
