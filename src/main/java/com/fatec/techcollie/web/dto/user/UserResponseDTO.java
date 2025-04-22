@@ -4,12 +4,10 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fatec.techcollie.model.Address;
 import com.fatec.techcollie.model.User;
 import com.fatec.techcollie.model.enums.Seniority;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.time.LocalDate;
 
-public record UserResponseDto(Integer id,
+public record UserResponseDTO(Integer id,
                               String username,
                               String name,
                               String surname,
@@ -25,16 +23,16 @@ public record UserResponseDto(Integer id,
                               @JsonInclude(JsonInclude.Include.NON_NULL)
                               String profileUrl) {
 
-    public UserResponseDto(User user){
+    public UserResponseDTO(User user){
         this(user.getId(),
                 "@"+user.getUsername(),
                 user.getName(),
                 user.getSurname(),
                 user.getEmail(),
-                user.getBirthdate(),
+                user.getBirthDate(),
                 user.getAddress(),
                 user.getSeniority(),
-                user.getAreaInterest(),
+                user.getInterestArea(),
                 user.getProfilePicUrl());
     }
 }
