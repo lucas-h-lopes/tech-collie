@@ -1,6 +1,7 @@
 package com.fatec.techcollie.web.mapper;
 
 import com.fatec.techcollie.model.User;
+import com.fatec.techcollie.repository.projection.impl.UserProjectionImplementation;
 import com.fatec.techcollie.web.dto.user.UserCreateDto;
 import com.fatec.techcollie.web.dto.user.UserResponseDto;
 
@@ -20,5 +21,9 @@ public class UserMapper {
 
     public static List<UserResponseDto> toResponseDtoList(List<User> users){
         return users.stream().map(UserMapper::toResponseDto).toList();
+    }
+
+    public static UserProjectionImplementation toUserProjection(User user){
+        return new UserProjectionImplementation(user);
     }
 }
