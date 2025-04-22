@@ -1,5 +1,7 @@
 package com.fatec.techcollie.web.exception;
 
+import com.fatec.techcollie.service.exception.InternalServerErrorException;
+import com.fatec.techcollie.service.exception.NotFoundException;
 import com.fatec.techcollie.service.exception.UniqueViolationException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
@@ -23,9 +25,21 @@ public class GlobalHandler {
         return ResponseEntity.badRequest().body(exceptionBody);
     }
 
+    @ExceptionHandler({NotFoundException.class})
+    public ResponseEntity<ExceptionBody> notFoundException(NotFoundException e, HttpServletRequest request){
+        ExceptionBody exceptionBody = new ExceptionBody(request, HttpStatus.NOT_FOUND, e.getMessage(), e ,false);
+        return ResponseEntity.status(404).body(exceptionBody);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ExceptionBody> validationException(MethodArgumentNotValidException e, HttpServletRequest request){
         ExceptionBody exceptionBody = new ExceptionBody(request, HttpStatus.UNPROCESSABLE_ENTITY, "Validation error(s)", e, true);
         return ResponseEntity.status(422).body(exceptionBody);
+    }
+
+    @ExceptionHandler(InternalServerErrorException.class)
+    public ResponseEntity<ExceptionBody> internalServerError(Exception e, HttpServletRequest request){
+        ExceptionBody exceptionBody = new ExceptionBody(request, HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e ,false);
+        return ResponseEntity.status(500).body(exceptionBody);
     }
 }
