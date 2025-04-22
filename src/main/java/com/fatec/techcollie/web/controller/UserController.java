@@ -1,10 +1,14 @@
 package com.fatec.techcollie.web.controller;
 
 import com.fatec.techcollie.model.User;
+import com.fatec.techcollie.service.AddressService;
 import com.fatec.techcollie.service.UserService;
+import com.fatec.techcollie.web.dto.address.AddressDTO;
 import com.fatec.techcollie.web.dto.page.PageableDTO;
-import com.fatec.techcollie.web.dto.user.UserCreateDto;
-import com.fatec.techcollie.web.dto.user.UserResponseDto;
+import com.fatec.techcollie.web.dto.user.UserAdditionalDTO;
+import com.fatec.techcollie.web.dto.user.UserCreateDTO;
+import com.fatec.techcollie.web.dto.user.UserResponseDTO;
+import com.fatec.techcollie.web.mapper.AddressMapper;
 import com.fatec.techcollie.web.mapper.PageableMapper;
 import com.fatec.techcollie.web.mapper.UserMapper;
 import jakarta.validation.Valid;
@@ -21,13 +25,15 @@ import java.net.URI;
 public class UserController {
 
     private final UserService userService;
+    private final AddressService addressService;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, AddressService addressService) {
         this.userService = userService;
+        this.addressService = addressService;
     }
 
     @PostMapping
-    public ResponseEntity<UserResponseDto> insert(@RequestBody @Valid UserCreateDto dto){
+    public ResponseEntity<UserResponseDTO> insert(@RequestBody @Valid UserCreateDTO dto){
         User user = UserMapper.toUser(dto);
         userService.insert(user);
         URI uri = ServletUriComponentsBuilder
@@ -35,14 +41,14 @@ public class UserController {
                 .path("/{id}")
                 .buildAndExpand(user.getId())
                 .toUri();
-        UserResponseDto response = UserMapper.toResponseDto(user);
+        UserResponseDTO response = UserMapper.toResponseDto(user);
         return ResponseEntity.created(uri).body(response);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserResponseDto> getById(@PathVariable Integer id){
+    public ResponseEntity<UserResponseDTO> getById(@PathVariable Integer id){
         User user = userService.getById(id);
-        return ResponseEntity.ok(new UserResponseDto(user));
+        return ResponseEntity.ok(new UserResponseDTO(user));
     }
 
     @GetMapping
@@ -56,6 +62,20 @@ public class UserController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Integer id){
         userService.deleteById(id);
+        return ResponseEntity.noContent()
+                .build();
+    }
+
+    @PatchMapping("/{userId}/addresses")
+    public ResponseEntity<Void> updateAddress(@PathVariable Integer userId, @RequestBody @Valid AddressDTO dto){
+        addressService.update(userId, AddressMapper.toAddress(dto));
+        return ResponseEntity.noContent()
+                .build();
+    }
+
+    @PatchMapping("/{userId}")
+    public ResponseEntity<Void> updateAdditional(@PathVariable Integer userId, @RequestBody @Valid UserAdditionalDTO dto){
+        userService.updateAdditional(userId, UserMapper.toAdditionalUser(dto));
         return ResponseEntity.noContent()
                 .build();
     }

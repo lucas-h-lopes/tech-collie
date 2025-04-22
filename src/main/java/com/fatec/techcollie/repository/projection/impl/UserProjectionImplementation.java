@@ -75,12 +75,12 @@ public class UserProjectionImplementation implements UserProjection {
         this.name = user.getName();
         this.surname = user.getSurname();
         this.email = user.getEmail();
-        this.birthdate = user.getBirthdate();
+        this.birthdate = user.getBirthDate();
         this.address = user.getAddress();
         if (user.getSeniority() != null) {
             this.seniority = user.getSeniority().name();
         }
         this.profilePicUrl = user.getProfilePicUrl();
-        this.areaInterest = user.getAreaInterest();
+        this.areaInterest = user.getInterestArea();
     }
 }
