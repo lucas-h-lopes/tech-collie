@@ -1,11 +1,9 @@
 package com.fatec.techcollie.repository.projection;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fatec.techcollie.model.Address;
 
 import java.time.LocalDate;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public interface UserProjection {
 
     Integer getId();
@@ -13,9 +11,9 @@ public interface UserProjection {
     String getName();
     String getSurname();
     String getEmail();
-    LocalDate getBirthdate();
+    LocalDate getBirthDate();
     Address getAddress();
     String getSeniority();
-    String getProfilePicUrl();
-    String getAreaInterest();
+    String getProfileUrl();
+    String getInterestArea();
 }

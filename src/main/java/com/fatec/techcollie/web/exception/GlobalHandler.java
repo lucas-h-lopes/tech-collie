@@ -40,7 +40,7 @@ public class GlobalHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ExceptionBody> validationException(MethodArgumentNotValidException e, HttpServletRequest request){
         log(e);
-        ExceptionBody exceptionBody = new ExceptionBody(request, HttpStatus.UNPROCESSABLE_ENTITY, "Validation error(s)", e, true);
+        ExceptionBody exceptionBody = new ExceptionBody(request, HttpStatus.UNPROCESSABLE_ENTITY, "Erro(s) de validação", e, true);
         return ResponseEntity.status(422).body(exceptionBody);
     }
 

@@ -1,26 +1,22 @@
 package com.fatec.techcollie.web.dto.user;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fatec.techcollie.model.Address;
 import com.fatec.techcollie.model.User;
 import com.fatec.techcollie.model.enums.Seniority;
 
 import java.time.LocalDate;
 
+@JsonPropertyOrder({"id", "username", "name", "surname", "email", "birthDate", "seniority", "interestArea", "profileUrl", "address"})
 public record UserResponseDTO(Integer id,
                               String username,
                               String name,
                               String surname,
                               String email,
-                              @JsonInclude(JsonInclude.Include.NON_NULL)
-                              LocalDate birthdate,
-                              @JsonInclude(JsonInclude.Include.NON_NULL)
+                              LocalDate birthDate,
                               Address address,
-                              @JsonInclude(JsonInclude.Include.NON_NULL)
                               Seniority seniority,
-                              @JsonInclude(JsonInclude.Include.NON_NULL)
-                              String areaInterest,
-                              @JsonInclude(JsonInclude.Include.NON_NULL)
+                              String interestArea,
                               String profileUrl) {
 
     public UserResponseDTO(User user){

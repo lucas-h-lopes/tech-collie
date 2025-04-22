@@ -1,11 +1,12 @@
 package com.fatec.techcollie.repository.projection.impl;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fatec.techcollie.model.Address;
 import com.fatec.techcollie.model.User;
 import com.fatec.techcollie.repository.projection.UserProjection;
 
 import java.time.LocalDate;
-
+@JsonPropertyOrder({"id", "username", "name", "surname", "email", "birthDate", "seniority", "interestArea", "profileUrl", "address"})
 public class UserProjectionImplementation implements UserProjection {
 
     private final Integer id;
@@ -13,11 +14,11 @@ public class UserProjectionImplementation implements UserProjection {
     private final String name;
     private final String surname;
     private final String email;
-    private final LocalDate birthdate;
+    private final LocalDate birthDate;
     private final Address address;
     private String seniority = null;
-    private final String profilePicUrl;
-    private final String areaInterest;
+    private final String profileUrl;
+    private final String interestArea;
 
     @Override
     public Integer getId() {
@@ -45,8 +46,8 @@ public class UserProjectionImplementation implements UserProjection {
     }
 
     @Override
-    public LocalDate getBirthdate() {
-        return this.birthdate;
+    public LocalDate getBirthDate() {
+        return this.birthDate;
     }
 
     @Override
@@ -60,13 +61,13 @@ public class UserProjectionImplementation implements UserProjection {
     }
 
     @Override
-    public String getProfilePicUrl() {
-        return this.profilePicUrl;
+    public String getProfileUrl() {
+        return this.profileUrl;
     }
 
     @Override
-    public String getAreaInterest() {
-        return this.areaInterest;
+    public String getInterestArea() {
+        return this.interestArea;
     }
 
     public UserProjectionImplementation(User user) {
@@ -75,12 +76,12 @@ public class UserProjectionImplementation implements UserProjection {
         this.name = user.getName();
         this.surname = user.getSurname();
         this.email = user.getEmail();
-        this.birthdate = user.getBirthDate();
+        this.birthDate = user.getBirthDate();
         this.address = user.getAddress();
         if (user.getSeniority() != null) {
             this.seniority = user.getSeniority().name();
         }
-        this.profilePicUrl = user.getProfilePicUrl();
-        this.areaInterest = user.getInterestArea();
+        this.profileUrl = user.getProfilePicUrl();
+        this.interestArea = user.getInterestArea();
     }
 }
