@@ -25,30 +25,30 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    public UserService(UserRepository userRepository){
+    public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
     @Transactional
-    public User insert(User user){
-        try{
+    public User insert(User user) {
+        try {
             user.setName(formatName(user.getName()));
             user.setSurname(formatSurname(user.getSurname()));
             return userRepository.save(user);
-        }catch(DataIntegrityViolationException e){
+        } catch (DataIntegrityViolationException e) {
             log.info("Error: ", e);
             throw new UniqueViolationException("Nome de usuário ou email já cadastrados no sistema");
         }
     }
 
-    @Transactional(readOnly = true)
-    public User getById(Integer id){
+    //@Transactional(readOnly = true)
+    public User getById(Integer id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Usuário não encontrado"));
     }
 
     @Transactional(readOnly = true)
-    public Page<UserProjection> findAll(Pageable pageable, String firstName, String surname, String username){
+    public Page<UserProjection> findAll(Pageable pageable, String firstName, String surname, String username) {
         User user = new User();
         user.setName(firstName);
         user.setSurname(surname);
@@ -66,30 +66,51 @@ public class UserService {
     }
 
     @Transactional
-    public void deleteById(Integer id){
-            User user = getById(id);
+    public void deleteById(Integer id) {
+        User user = getById(id);
         try {
             userRepository.deleteById(id);
-        }catch(Exception e){
-            log.info("Algo deu errado durante a exclusão do usuário");
+        } catch (Exception e) {
             throw new InternalServerErrorException("Algo deu errado durante o processamento da requisição");
         }
     }
 
-    private String formatName(String name){
+    private String formatName(String name) {
         return Arrays.stream(name.trim()
-                .replaceAll("\\s+", " ")
-                .split(" "))
-                .map(x -> x.substring(0,1).toUpperCase() + x.substring(1).toLowerCase())
+                        .replaceAll("\\s+", " ")
+                        .split(" "))
+                .map(x -> x.substring(0, 1).toUpperCase() + x.substring(1).toLowerCase())
                 .collect(Collectors.joining(" "));
 
     }
 
-    private String formatSurname(String surname){
+    private String formatSurname(String surname) {
         return Arrays.stream(surname.trim()
-                .replaceAll("\\s+", " ")
-                .split(" "))
-                .map(x -> x.substring(0,1).toUpperCase() + x.substring(1).toLowerCase())
+                        .replaceAll("\\s+", " ")
+                        .split(" "))
+                .map(x -> x.substring(0, 1).toUpperCase() + x.substring(1).toLowerCase())
                 .collect(Collectors.joining(" "));
+    }
+
+    @Transactional
+    public void updateAdditional(Integer userId, User additionalUser) {
+        User user = getById(userId);
+
+        formatNonNull(user, additionalUser);
+    }
+
+    private void formatNonNull(User user, User newUser) {
+        if (newUser.getSeniority() != null && !newUser.getSeniority().name().isBlank()) {
+            user.setSeniority(newUser.getSeniority());
+        }
+        if (newUser.getBirthDate() != null) {
+            user.setBirthDate(newUser.getBirthDate());
+        }
+        if (newUser.getProfilePicUrl() != null && !newUser.getProfilePicUrl().isBlank()) {
+            user.setProfilePicUrl(newUser.getProfilePicUrl());
+        }
+        if (newUser.getInterestArea() != null && !newUser.getInterestArea().isBlank()) {
+            user.setInterestArea(newUser.getInterestArea());
+        }
     }
 }
