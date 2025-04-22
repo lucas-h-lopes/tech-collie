@@ -25,14 +25,6 @@ import java.util.Objects;
 @EntityListeners(AuditingEntityListener.class)
 public class User implements Serializable {
 
-    public User(UserCreateDto dto){
-        this.name = dto.name();
-        this.surname = dto.surname();
-        this.password = dto.password();
-        this.email = dto.email();
-        this.username = dto.username();
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -77,6 +69,14 @@ public class User implements Serializable {
     @Column(name = "last_modified_by")
     @LastModifiedBy
     private String lastModifiedBy;
+
+    public User(UserCreateDto dto){
+        this.name = dto.name();
+        this.surname = dto.surname();
+        this.password = dto.password();
+        this.email = dto.email();
+        this.username = dto.username();
+    }
 
     @Override
     public boolean equals(Object o) {
