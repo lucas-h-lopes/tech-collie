@@ -51,5 +51,15 @@ public class AddressService {
         if (uAddress.getCountry() == null || newAddress.getCountry() != null) {
             uAddress.setCountry(newAddress.getCountry());
         }
+
+        if (uAddress.getStreet() == null || newAddress.getStreet() != null) {
+            uAddress.setStreet(newAddress.getStreet());
+        }
+        if (uAddress.getDistrict() == null || newAddress.getDistrict() != null) {
+            uAddress.setDistrict(newAddress.getDistrict());
+        }
+        if (uAddress.getNumber() == null || newAddress.getNumber() != null) {
+            uAddress.setNumber(newAddress.getNumber());
+        }
     }
 }

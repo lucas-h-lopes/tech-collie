@@ -8,11 +8,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class AddressMapper {
 
-    public static Address toAddress(AddressDTO dto){
+    public static Address toAddress(AddressDTO dto) {
         Address address = new Address();
         address.setCity(dto.city());
         address.setCountry(dto.country());
         address.setState(dto.state());
+        address.setStreet(dto.street());
+        address.setDistrict(dto.district());
+        address.setNumber(dto.number());
         return address;
     }
 }
