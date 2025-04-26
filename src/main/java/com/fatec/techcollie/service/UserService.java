@@ -3,6 +3,7 @@ package com.fatec.techcollie.service;
 import com.fatec.techcollie.model.User;
 import com.fatec.techcollie.repository.UserRepository;
 import com.fatec.techcollie.repository.projection.UserProjection;
+import com.fatec.techcollie.service.exception.BadRequestException;
 import com.fatec.techcollie.service.exception.InternalServerErrorException;
 import com.fatec.techcollie.service.exception.NotFoundException;
 import com.fatec.techcollie.service.exception.UniqueViolationException;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,9 +26,11 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional
@@ -34,10 +38,12 @@ public class UserService {
         try {
             user.setName(formatName(user.getName()));
             user.setSurname(formatSurname(user.getSurname()));
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
             return userRepository.save(user);
         } catch (DataIntegrityViolationException e) {
-            log.info("Error: ", e);
             throw new UniqueViolationException("Nome de usuário ou email já cadastrados no sistema");
+        } catch (Exception e){
+            throw new InternalServerErrorException("Algo deu errado durante o processamento da solicitação");
         }
     }
 
@@ -75,6 +81,47 @@ public class UserService {
         }
     }
 
+    @Transactional
+    public void updateAdditional(Integer userId, User additionalUser) {
+        User user = getById(userId);
+
+        formatNonNull(user, additionalUser);
+    }
+
+    @Transactional
+    public void updatePassword(String currentPassword, String newPassword, String confirmationPassword, int userId){
+        if(!newPassword.equals(confirmationPassword)){
+            throw new BadRequestException("A nova senha e confirmação de senha devem ser iguais");
+        }
+
+        User user = getById(userId);
+
+        if(!passwordEncoder.matches(currentPassword, user.getPassword())){
+            throw new BadRequestException("As senhas não conferem");
+        }
+
+        if(passwordEncoder.matches(newPassword, user.getPassword())){
+            throw new BadRequestException("A nova senha precisa ser diferente da atual");
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+    }
+
+    private void formatNonNull(User user, User newUser) {
+        if (newUser.getSeniority() != null && !newUser.getSeniority().name().isBlank()) {
+            user.setSeniority(newUser.getSeniority());
+        }
+        if (newUser.getBirthDate() != null) {
+            user.setBirthDate(newUser.getBirthDate());
+        }
+        if (newUser.getProfilePicUrl() != null && !newUser.getProfilePicUrl().isBlank()) {
+            user.setProfilePicUrl(newUser.getProfilePicUrl());
+        }
+        if (newUser.getInterestArea() != null && !newUser.getInterestArea().isBlank()) {
+            user.setInterestArea(newUser.getInterestArea());
+        }
+    }
+
     private String formatName(String name) {
         return Arrays.stream(name.trim()
                         .replaceAll("\\s+", " ")
@@ -92,25 +139,4 @@ public class UserService {
                 .collect(Collectors.joining(" "));
     }
 
-    @Transactional
-    public void updateAdditional(Integer userId, User additionalUser) {
-        User user = getById(userId);
-
-        formatNonNull(user, additionalUser);
-    }
-
-    private void formatNonNull(User user, User newUser) {
-        if (newUser.getSeniority() != null && !newUser.getSeniority().name().isBlank()) {
-            user.setSeniority(newUser.getSeniority());
-        }
-        if (newUser.getBirthDate() != null) {
-            user.setBirthDate(newUser.getBirthDate());
-        }
-        if (newUser.getProfilePicUrl() != null && !newUser.getProfilePicUrl().isBlank()) {
-            user.setProfilePicUrl(newUser.getProfilePicUrl());
-        }
-        if (newUser.getInterestArea() != null && !newUser.getInterestArea().isBlank()) {
-            user.setInterestArea(newUser.getInterestArea());
-        }
-    }
 }

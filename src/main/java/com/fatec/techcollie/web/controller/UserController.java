@@ -7,6 +7,7 @@ import com.fatec.techcollie.web.dto.address.AddressDTO;
 import com.fatec.techcollie.web.dto.page.PageableDTO;
 import com.fatec.techcollie.web.dto.user.UserAdditionalDTO;
 import com.fatec.techcollie.web.dto.user.UserCreateDTO;
+import com.fatec.techcollie.web.dto.user.UserPasswordDTO;
 import com.fatec.techcollie.web.dto.user.UserResponseDTO;
 import com.fatec.techcollie.web.mapper.AddressMapper;
 import com.fatec.techcollie.web.mapper.PageableMapper;
@@ -76,6 +77,13 @@ public class UserController {
     @PatchMapping("/{userId}")
     public ResponseEntity<Void> updateAdditional(@PathVariable Integer userId, @RequestBody @Valid UserAdditionalDTO dto){
         userService.updateAdditional(userId, UserMapper.toAdditionalUser(dto));
+        return ResponseEntity.noContent()
+                .build();
+    }
+
+    @PutMapping("/{userId}/password")
+    public ResponseEntity<Void> updatePassword(@PathVariable int userId, @RequestBody @Valid UserPasswordDTO dto){
+        userService.updatePassword(dto.currentPassword(), dto.newPassword(), dto.confirmationPassword(), userId);
         return ResponseEntity.noContent()
                 .build();
     }
