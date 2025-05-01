@@ -1,8 +1,4 @@
 spring:
-  h2:
-    console:
-      enabled: true
-      path: /h2
   jpa:
     hibernate:
       ddl-auto: update
@@ -10,7 +6,16 @@ spring:
     properties:
       format_sql: true
   datasource:
-    url: jdbc:h2:mem:techcollie
-    username: sa
-    password:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     name: dev_db
+
+jwt:
+  secret: ${JWT_SECRET}
+
+api:
+  path:
+    default: /api/v1
+    users: /users
+    login: /login
