@@ -1,9 +1,12 @@
 package com.fatec.techcollie.service;
 
+import com.fatec.techcollie.builder.AuditingLogRequestBuilder;
+import com.fatec.techcollie.jwt.AuthenticatedUserProvider;
+import com.fatec.techcollie.logging.LogService;
 import com.fatec.techcollie.model.Address;
 import com.fatec.techcollie.model.User;
+import com.fatec.techcollie.model.enums.Action;
 import com.fatec.techcollie.repository.AddressRepository;
-import com.fatec.techcollie.service.exception.InternalServerErrorException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,19 +15,14 @@ public class AddressService {
 
     private final AddressRepository addressRepository;
     private final UserService userService;
+    private final LogService logService;
+    private final AuditingLogRequestBuilder builder;
 
-    public AddressService(AddressRepository addressRepository, UserService userService) {
+    public AddressService(AddressRepository addressRepository, UserService userService, LogService logService) {
         this.addressRepository = addressRepository;
         this.userService = userService;
-    }
-
-    @Transactional
-    public Address insert(Address address) {
-        try {
-            return addressRepository.save(address);
-        } catch (Exception e) {
-            throw new InternalServerErrorException("Algo deu errado durante o processamento da solicitação");
-        }
+        this.logService = logService;
+        this.builder = new AuditingLogRequestBuilder();
     }
 
     @Transactional
@@ -39,9 +37,22 @@ public class AddressService {
     private void updateNonNull(User user, Address newAddress) {
         if (user.getAddress() == null) {
             user.setAddress(newAddress);
+
+            addressRepository.save(user.getAddress());
+
+            String authenticatedEmail = AuthenticatedUserProvider.getAuthenticatedEmail();
+
+            logService.insertIntoLog(
+                    builder.withEmail(authenticatedEmail)
+                            .withTableName(Address.class)
+                            .withRecordId(user.getAddress().getId())
+                            .withAction(Action.INSERT)
+                            .build()
+            );
             return;
         }
         Address uAddress = user.getAddress();
+
         if (uAddress.getCity() == null || newAddress.getCity() != null) {
             uAddress.setCity(newAddress.getCity());
         }
@@ -61,5 +72,17 @@ public class AddressService {
         if (uAddress.getNumber() == null || newAddress.getNumber() != null) {
             uAddress.setNumber(newAddress.getNumber());
         }
+
+
+        String authenticatedEmail = AuthenticatedUserProvider.getAuthenticatedEmail();
+
+        logService.insertIntoLog(
+                builder
+                        .withAction(Action.UPDATE)
+                        .withRecordId(user.getAddress().getId())
+                        .withEmail(authenticatedEmail)
+                        .withTableName(Address.class)
+                        .build()
+        );
     }
 }

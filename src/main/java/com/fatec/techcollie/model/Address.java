@@ -2,16 +2,23 @@ package com.fatec.techcollie.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
-import java.util.Objects;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "addresses")
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor @EqualsAndHashCode
+@AllArgsConstructor
+@EqualsAndHashCode
+@EntityListeners(AuditingEntityListener.class)
 public class Address implements Serializable {
 
     @Id
@@ -29,4 +36,28 @@ public class Address implements Serializable {
     private String state;
     @Column(name = "country", length = 100)
     private String country;
+
+    @CreatedBy
+    @Column(name = "created_by", columnDefinition = "varchar(200)")
+    private String createdBy;
+
+    @CreatedDate
+    @Column(name = "created_at", columnDefinition = "timestamp")
+    private LocalDateTime createdAt;
+    @LastModifiedDate
+    @Column(name = "last_modified_at", columnDefinition = "timestamp")
+    private LocalDateTime lastModifiedAt;
+    @Column(name = "last_modified_by")
+    @LastModifiedBy
+    private String lastModifiedBy;
+
+    public Address(Address a) {
+        setCity(a.getCity());
+        setStreet(a.getStreet());
+        setDistrict(a.getDistrict());
+        setCountry(a.getCountry());
+        setState(a.getState());
+        setNumber(a.getNumber());
+        setId(a.getId());
+    }
 }

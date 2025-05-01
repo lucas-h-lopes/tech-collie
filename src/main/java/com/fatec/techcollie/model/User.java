@@ -57,7 +57,7 @@ public class User implements Serializable {
     private UserRole role = UserRole.MINIMUM_ACCESS;
 
     @CreatedBy
-    @Column(name = "created_by", columnDefinition = "varchar(200) default 'Anonymous'")
+    @Column(name = "created_by", columnDefinition = "varchar(200)")
     private String createdBy;
 
     @CreatedDate

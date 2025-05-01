@@ -1,6 +1,10 @@
 package com.fatec.techcollie.service;
 
+import com.fatec.techcollie.builder.AuditingLogRequestBuilder;
+import com.fatec.techcollie.jwt.AuthenticatedUserProvider;
+import com.fatec.techcollie.logging.LogService;
 import com.fatec.techcollie.model.User;
+import com.fatec.techcollie.model.enums.Action;
 import com.fatec.techcollie.repository.UserRepository;
 import com.fatec.techcollie.repository.projection.UserProjection;
 import com.fatec.techcollie.service.exception.BadRequestException;
@@ -14,6 +18,8 @@ import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,10 +33,14 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final LogService logService;
+    private final AuditingLogRequestBuilder builder;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, LogService logService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.logService = logService;
+        this.builder = new AuditingLogRequestBuilder();
     }
 
     @Transactional
@@ -39,10 +49,22 @@ public class UserService {
             user.setName(formatName(user.getName()));
             user.setSurname(formatSurname(user.getSurname()));
             user.setPassword(passwordEncoder.encode(user.getPassword()));
-            return userRepository.save(user);
+            User savedUser = userRepository.save(user);
+
+
+            String authenticatedEmail = AuthenticatedUserProvider.getAuthenticatedEmail();
+
+            logService.insertIntoLog(
+                    builder.withAction(Action.INSERT)
+                            .withEmail(authenticatedEmail)
+                            .withRecordId(savedUser.getId())
+                            .withTableName(User.class)
+                            .build()
+            );
+            return savedUser;
         } catch (DataIntegrityViolationException e) {
             throw new UniqueViolationException("Nome de usuário ou email já cadastrados no sistema");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new InternalServerErrorException("Algo deu errado durante o processamento da solicitação");
         }
     }
@@ -72,10 +94,20 @@ public class UserService {
     }
 
     @Transactional
-    public void deleteById(Integer id) {
-        User user = getById(id);
+    public void deleteById(Integer oldId) {
+        getById(oldId);
         try {
-            userRepository.deleteById(id);
+            userRepository.deleteById(oldId);
+
+            String authenticatedEmail = AuthenticatedUserProvider.getAuthenticatedEmail();
+
+            logService.insertIntoLog(
+                    builder.withAction(Action.DELETE)
+                            .withEmail(authenticatedEmail)
+                            .withRecordId(oldId)
+                            .withTableName(User.class)
+                            .build()
+            );
         } catch (Exception e) {
             throw new InternalServerErrorException("Algo deu errado durante o processamento da requisição");
         }
@@ -89,22 +121,27 @@ public class UserService {
     }
 
     @Transactional
-    public void updatePassword(String currentPassword, String newPassword, String confirmationPassword, int userId){
-        if(!newPassword.equals(confirmationPassword)){
+    public void updatePassword(String currentPassword, String newPassword, String confirmationPassword, int userId) {
+        if (!newPassword.equals(confirmationPassword)) {
             throw new BadRequestException("A nova senha e confirmação de senha devem ser iguais");
         }
 
         User user = getById(userId);
 
-        if(!passwordEncoder.matches(currentPassword, user.getPassword())){
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
             throw new BadRequestException("As senhas não conferem");
         }
 
-        if(passwordEncoder.matches(newPassword, user.getPassword())){
+        if (passwordEncoder.matches(newPassword, user.getPassword())) {
             throw new BadRequestException("A nova senha precisa ser diferente da atual");
         }
 
         user.setPassword(passwordEncoder.encode(newPassword));
+    }
+
+    public User getByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException("Usuário não encontrado"));
     }
 
     private void formatNonNull(User user, User newUser) {
