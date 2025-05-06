@@ -58,7 +58,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     }
 
     private void submitToContext(String email, HttpServletRequest request) {
-        UserDetails details = service.loadUserByUsername(email);
+        JwtUserDetails details = service.loadUserByUsername(email);
         UsernamePasswordAuthenticationToken token =
                 UsernamePasswordAuthenticationToken
                         .authenticated(details, null, details.getAuthorities());
