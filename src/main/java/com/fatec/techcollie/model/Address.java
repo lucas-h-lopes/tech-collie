@@ -60,4 +60,13 @@ public class Address implements Serializable {
         setNumber(a.getNumber());
         setId(a.getId());
     }
+
+    public Address(String street, String district, String number, String city, String state, String country){
+        this.street = street;
+        this.district = district;
+        this.number = number;
+        this.city = city;
+        this.state = state;
+        this.country = country;
+    }
 }

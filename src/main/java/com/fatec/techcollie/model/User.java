@@ -21,7 +21,10 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "users")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 public class User implements Serializable {
 
@@ -70,13 +73,28 @@ public class User implements Serializable {
     @LastModifiedBy
     private String lastModifiedBy;
 
-    public User(UserCreateDTO dto){
+    public User(UserCreateDTO dto) {
         this.name = dto.name();
         this.surname = dto.surname();
         this.password = dto.password();
         this.email = dto.email();
         this.username = dto.username();
     }
+
+    public User(String username, String name, String surname, String email, String password, LocalDate birthDate, Seniority seniority, String profilePicUrl, String interestArea, UserRole role, Address address) {
+        this.username = username;
+        this.name = name;
+        this.surname = surname;
+        this.email = email;
+        this.password = password;
+        this.birthDate = birthDate;
+        this.seniority = seniority;
+        this.profilePicUrl = profilePicUrl;
+        this.interestArea = interestArea;
+        this.role = role;
+        this.address = address;
+    }
+
 
     @Override
     public boolean equals(Object o) {

@@ -3,6 +3,7 @@ package com.fatec.techcollie.config;
 import com.fatec.techcollie.model.Address;
 import com.fatec.techcollie.model.User;
 import com.fatec.techcollie.model.enums.Seniority;
+import com.fatec.techcollie.model.enums.UserRole;
 import com.fatec.techcollie.repository.UserRepository;
 import jakarta.annotation.PostConstruct;
 import org.springframework.context.annotation.Configuration;
@@ -46,6 +47,7 @@ public class DbSeedingConfig {
             user.setEmail("default@email.com");
             user.setPassword(encoder.encode("123456aA@"));
             user.setAddress(address);
+            user.setRole(UserRole.ADMIN);
 
             fillBasicFields(user);
             userRepository.save(user);

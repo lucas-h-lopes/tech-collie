@@ -27,7 +27,6 @@ public class SchemaInitializerConfig {
     public void init() {
         try (Connection connection = dataSource.getConnection()) {
             Statement st = connection.createStatement();
-            System.out.println(getSqlFromFile());
             st.execute(getSqlFromFile());
 
         } catch (Exception e) {
