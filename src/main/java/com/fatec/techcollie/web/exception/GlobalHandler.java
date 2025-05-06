@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -42,6 +43,13 @@ public class GlobalHandler {
         log(e);
         ExceptionBody exceptionBody = new ExceptionBody(request, HttpStatus.UNPROCESSABLE_ENTITY, "Erro(s) de validação", e, true);
         return ResponseEntity.status(422).body(exceptionBody);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ExceptionBody> accessDeniedException(AccessDeniedException e, HttpServletRequest request){
+        log(e);
+        ExceptionBody exceptionBody = new ExceptionBody(request, HttpStatus.FORBIDDEN   , e.getMessage(), e ,false);
+        return ResponseEntity.status(403).body(exceptionBody);
     }
 
     @ExceptionHandler(InternalServerErrorException.class)

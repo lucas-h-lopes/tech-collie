@@ -17,7 +17,7 @@ public class AuditingLogRequestBuilder {
     }
 
     public AuditingLogRequestBuilder withEmail(String email) {
-        this.audit.setAuthenticatedEmail(email == null || email.equals("anonymousUser") ? "Anonimo" : email);
+        this.audit.setAuthenticatedEmail(email);
         return this;
     }
 
