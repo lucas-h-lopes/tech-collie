@@ -27,6 +27,8 @@ public class UserMapper {
         user.setInterestArea(dto.interestArea());
         user.setBirthDate(dto.birthDate());
         user.setProfilePicUrl(dto.pictureUrl());
+        user.setName(dto.name());
+        user.setSurname(dto.surname());
 
         return user;
     }

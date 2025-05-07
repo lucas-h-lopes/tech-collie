@@ -18,8 +18,6 @@ import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,7 +45,7 @@ public class UserService {
     public User insert(User user) {
         try {
             user.setName(formatName(user.getName()));
-            user.setSurname(formatSurname(user.getSurname()));
+            user.setSurname(formatName(user.getSurname()));
             user.setPassword(passwordEncoder.encode(user.getPassword()));
             User savedUser = userRepository.save(user);
 
@@ -117,6 +115,15 @@ public class UserService {
     public void updateAdditional(Integer userId, User additionalUser) {
         User user = getById(userId);
 
+        String authenticatedEmail = AuthenticatedUserProvider.getAuthenticatedEmail();
+
+        logService.insertIntoLog(
+                builder.withAction(Action.UPDATE)
+                        .withTableName(User.class)
+                        .withEmail(authenticatedEmail)
+                        .withRecordId(userId)
+                        .build()
+        );
         formatNonNull(user, additionalUser);
     }
 
@@ -137,6 +144,16 @@ public class UserService {
         }
 
         user.setPassword(passwordEncoder.encode(newPassword));
+
+        String authenticatedEmail = AuthenticatedUserProvider.getAuthenticatedEmail();
+
+        logService.insertIntoLog(
+                builder.withAction(Action.UPDATE)
+                        .withTableName(User.class)
+                        .withEmail(authenticatedEmail)
+                        .withRecordId(userId)
+                        .build()
+        );
     }
 
     public User getByEmail(String email) {
@@ -157,6 +174,13 @@ public class UserService {
         if (newUser.getInterestArea() != null && !newUser.getInterestArea().isBlank()) {
             user.setInterestArea(newUser.getInterestArea());
         }
+
+        if (newUser.getName() != null && !newUser.getName().isBlank()) {
+            user.setName(formatName(newUser.getName()));
+        }
+        if (newUser.getSurname() != null && !newUser.getSurname().isBlank()) {
+            user.setSurname(formatName(newUser.getSurname()));
+        }
     }
 
     private String formatName(String name) {
@@ -167,13 +191,4 @@ public class UserService {
                 .collect(Collectors.joining(" "));
 
     }
-
-    private String formatSurname(String surname) {
-        return Arrays.stream(surname.trim()
-                        .replaceAll("\\s+", " ")
-                        .split(" "))
-                .map(x -> x.substring(0, 1).toUpperCase() + x.substring(1).toLowerCase())
-                .collect(Collectors.joining(" "));
-    }
-
 }
