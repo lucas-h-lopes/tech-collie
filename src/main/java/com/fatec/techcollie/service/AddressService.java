@@ -17,17 +17,19 @@ public class AddressService {
     private final UserService userService;
     private final LogService logService;
     private final AuditingLogRequestBuilder builder;
+    private final AuthenticatedUserProvider provider;
 
-    public AddressService(AddressRepository addressRepository, UserService userService, LogService logService) {
+    public AddressService(AddressRepository addressRepository, UserService userService, LogService logService, AuthenticatedUserProvider provider) {
         this.addressRepository = addressRepository;
         this.userService = userService;
         this.logService = logService;
         this.builder = new AuditingLogRequestBuilder();
+        this.provider = provider;
     }
 
     @Transactional
-    public Address update(Integer userId, Address address) {
-        User user = userService.getById(userId);
+    public Address update(Address address) {
+        User user = userService.getById(provider.getAuthenticatedId());
 
         updateNonNull(user, address);
 
@@ -40,7 +42,7 @@ public class AddressService {
 
             addressRepository.save(user.getAddress());
 
-            String authenticatedEmail = AuthenticatedUserProvider.getAuthenticatedEmail();
+            String authenticatedEmail = provider.getAuthenticatedEmail();
 
             logService.insertIntoLog(
                     builder.withEmail(authenticatedEmail)
@@ -74,7 +76,7 @@ public class AddressService {
         }
 
 
-        String authenticatedEmail = AuthenticatedUserProvider.getAuthenticatedEmail();
+        String authenticatedEmail = provider.getAuthenticatedEmail();
 
         logService.insertIntoLog(
                 builder

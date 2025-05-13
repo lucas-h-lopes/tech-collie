@@ -33,24 +33,33 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final LogService logService;
     private final AuditingLogRequestBuilder builder;
+    private final AuthenticatedUserProvider provider;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, LogService logService) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, LogService logService, AuthenticatedUserProvider provider) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.logService = logService;
         this.builder = new AuditingLogRequestBuilder();
+        this.provider = provider;
     }
 
     @Transactional
     public User insert(User user) {
+        if(userRepository.existsByEmail(user.getEmail())){
+            throw new UniqueViolationException("Email já cadastrado no sistema");
+        }
+
+        if(userRepository.existsByUsername(user.getUsername())){
+            throw new UniqueViolationException("Nome de usuário já cadastrado no sistema");
+        }
+
         try {
             user.setName(formatName(user.getName()));
             user.setSurname(formatName(user.getSurname()));
             user.setPassword(passwordEncoder.encode(user.getPassword()));
             User savedUser = userRepository.save(user);
 
-
-            String authenticatedEmail = AuthenticatedUserProvider.getAuthenticatedEmail();
+            String authenticatedEmail = provider.getAuthenticatedEmail();
 
             logService.insertIntoLog(
                     builder.withAction(Action.INSERT)
@@ -60,8 +69,6 @@ public class UserService {
                             .build()
             );
             return savedUser;
-        } catch (DataIntegrityViolationException e) {
-            throw new UniqueViolationException("Nome de usuário ou email já cadastrados no sistema");
         } catch (Exception e) {
             throw new InternalServerErrorException("Algo deu errado durante o processamento da solicitação");
         }
@@ -97,7 +104,7 @@ public class UserService {
         try {
             userRepository.deleteById(oldId);
 
-            String authenticatedEmail = AuthenticatedUserProvider.getAuthenticatedEmail();
+            String authenticatedEmail = provider.getAuthenticatedEmail();
 
             logService.insertIntoLog(
                     builder.withAction(Action.DELETE)
@@ -112,28 +119,28 @@ public class UserService {
     }
 
     @Transactional
-    public void updateAdditional(Integer userId, User additionalUser) {
-        User user = getById(userId);
+    public void updateAdditional(User additionalUser) {
+        User user = getById(provider.getAuthenticatedId());
 
-        String authenticatedEmail = AuthenticatedUserProvider.getAuthenticatedEmail();
+        String authenticatedEmail = provider.getAuthenticatedEmail();
 
         logService.insertIntoLog(
                 builder.withAction(Action.UPDATE)
                         .withTableName(User.class)
                         .withEmail(authenticatedEmail)
-                        .withRecordId(userId)
+                        .withRecordId(user.getId())
                         .build()
         );
         formatNonNull(user, additionalUser);
     }
 
     @Transactional
-    public void updatePassword(String currentPassword, String newPassword, String confirmationPassword, int userId) {
+    public void updatePassword(String currentPassword, String newPassword, String confirmationPassword) {
         if (!newPassword.equals(confirmationPassword)) {
             throw new BadRequestException("A nova senha e confirmação de senha devem ser iguais");
         }
 
-        User user = getById(userId);
+        User user = getById(provider.getAuthenticatedId());
 
         if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
             throw new BadRequestException("As senhas não conferem");
@@ -145,13 +152,13 @@ public class UserService {
 
         user.setPassword(passwordEncoder.encode(newPassword));
 
-        String authenticatedEmail = AuthenticatedUserProvider.getAuthenticatedEmail();
+        String authenticatedEmail = provider.getAuthenticatedEmail();
 
         logService.insertIntoLog(
                 builder.withAction(Action.UPDATE)
                         .withTableName(User.class)
                         .withEmail(authenticatedEmail)
-                        .withRecordId(userId)
+                        .withRecordId(user.getId())
                         .build()
         );
     }

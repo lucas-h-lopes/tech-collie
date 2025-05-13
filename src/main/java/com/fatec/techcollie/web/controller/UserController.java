@@ -70,26 +70,26 @@ public class UserController {
                 .build();
     }
 
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'MINIMUM_ACCESS') and #userId == authentication.principal.id")
-    @PatchMapping("/{userId}/addresses")
-    public ResponseEntity<Void> updateAddress(@PathVariable Integer userId, @RequestBody @Valid AddressDTO dto) {
-        addressService.update(userId, AddressMapper.toAddress(dto));
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'MINIMUM_ACCESS')")
+    @PatchMapping("/me/addresses")
+    public ResponseEntity<Void> updateAddress(@RequestBody @Valid AddressDTO dto) {
+        addressService.update(AddressMapper.toAddress(dto));
         return ResponseEntity.noContent()
                 .build();
     }
 
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'MINIMUM_ACCESS') and #userId == authentication.principal.id")
-    @PatchMapping("/{userId}")
-    public ResponseEntity<Void> updateAdditional(@PathVariable Integer userId, @RequestBody @Valid UserAdditionalDTO dto) {
-        userService.updateAdditional(userId, UserMapper.toAdditionalUser(dto));
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'MINIMUM_ACCESS')")
+    @PatchMapping("/me")
+    public ResponseEntity<Void> updateAdditional(@RequestBody @Valid UserAdditionalDTO dto) {
+        userService.updateAdditional(UserMapper.toAdditionalUser(dto));
         return ResponseEntity.noContent()
                 .build();
     }
 
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'MINIMUM_ACCESS') and #userId == authentication.principal.id")
-    @PutMapping("/{userId}/password")
-    public ResponseEntity<Void> updatePassword(@PathVariable int userId, @RequestBody @Valid UserPasswordDTO dto) {
-        userService.updatePassword(dto.currentPassword(), dto.newPassword(), dto.confirmationPassword(), userId);
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'MINIMUM_ACCESS')")
+    @PutMapping("/me/password")
+    public ResponseEntity<Void> updatePassword(@RequestBody @Valid UserPasswordDTO dto) {
+        userService.updatePassword(dto.currentPassword(), dto.newPassword(), dto.confirmationPassword());
         return ResponseEntity.noContent()
                 .build();
     }
