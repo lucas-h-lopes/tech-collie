@@ -21,7 +21,7 @@ public class AuditingLogRequestBuilder {
         return this;
     }
 
-    public AuditingLogRequestBuilder withRecordId(Integer id) {
+    public AuditingLogRequestBuilder withRecordId(Object id) {
         this.audit.setRecordId(id);
         return this;
     }

@@ -13,7 +13,7 @@ import lombok.Setter;
 public class AuditingLogRequest {
 
     private String authenticatedEmail;
-    private Integer recordId;
+    private Object recordId;
     private String tableName;
     private Action action;
 }
