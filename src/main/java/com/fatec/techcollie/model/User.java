@@ -17,6 +17,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -58,6 +59,9 @@ public class User implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(name = "role")
     private UserRole role = UserRole.MINIMUM_ACCESS;
+
+    @OneToMany(mappedBy = "user")
+    private List<Post> posts;
 
     @CreatedBy
     @Column(name = "created_by", columnDefinition = "varchar(200)")

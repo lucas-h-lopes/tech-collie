@@ -4,7 +4,7 @@ import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
 
-public record UserAdditionalDTO(
+public record UserAdditionalCreateDTO(
         @Size(min = 3, max = 50, message = "O nome precisa possuir de 3 a 50 caracteres")
         String name,
         @Size(min = 3, max = 50, message = "O sobrenome precisa possuir de 3 a 50 caracteres")

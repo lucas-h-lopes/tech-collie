@@ -6,9 +6,9 @@ import com.fatec.techcollie.service.AddressService;
 import com.fatec.techcollie.service.UserService;
 import com.fatec.techcollie.web.dto.address.AddressDTO;
 import com.fatec.techcollie.web.dto.page.PageableDTO;
-import com.fatec.techcollie.web.dto.user.UserAdditionalDTO;
+import com.fatec.techcollie.web.dto.user.UserAdditionalCreateDTO;
 import com.fatec.techcollie.web.dto.user.UserCreateDTO;
-import com.fatec.techcollie.web.dto.user.UserPasswordDTO;
+import com.fatec.techcollie.web.dto.user.UserPasswordUpdateDTO;
 import com.fatec.techcollie.web.dto.user.UserResponseDTO;
 import com.fatec.techcollie.web.mapper.AddressMapper;
 import com.fatec.techcollie.web.mapper.PageableMapper;
@@ -80,7 +80,7 @@ public class UserController {
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'MINIMUM_ACCESS')")
     @PatchMapping("/me")
-    public ResponseEntity<Void> updateAdditional(@RequestBody @Valid UserAdditionalDTO dto) {
+    public ResponseEntity<Void> updateAdditional(@RequestBody @Valid UserAdditionalCreateDTO dto) {
         userService.updateAdditional(UserMapper.toAdditionalUser(dto));
         return ResponseEntity.noContent()
                 .build();
@@ -88,7 +88,7 @@ public class UserController {
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'MINIMUM_ACCESS')")
     @PutMapping("/me/password")
-    public ResponseEntity<Void> updatePassword(@RequestBody @Valid UserPasswordDTO dto) {
+    public ResponseEntity<Void> updatePassword(@RequestBody @Valid UserPasswordUpdateDTO dto) {
         userService.updatePassword(dto.currentPassword(), dto.newPassword(), dto.confirmationPassword());
         return ResponseEntity.noContent()
                 .build();

@@ -7,7 +7,7 @@ import com.fatec.techcollie.model.enums.Seniority;
 
 import java.time.LocalDate;
 
-@JsonPropertyOrder({"id", "username", "name", "surname", "email", "birthDate", "seniority", "interestArea", "profileUrl", "address"})
+@JsonPropertyOrder({"id", "username", "name", "surname", "email", "birthDate", "seniority", "interestArea", "profilePictureUrl", "address"})
 public record UserResponseDTO(Integer id,
                               String username,
                               String name,
@@ -17,7 +17,7 @@ public record UserResponseDTO(Integer id,
                               Address address,
                               Seniority seniority,
                               String interestArea,
-                              String profileUrl) {
+                              String profilePictureUrl) {
 
     public UserResponseDTO(User user){
         this(user.getId(),

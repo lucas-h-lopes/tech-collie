@@ -4,8 +4,9 @@ import com.fatec.techcollie.model.User;
 import com.fatec.techcollie.model.enums.Seniority;
 import com.fatec.techcollie.repository.projection.impl.UserProjectionImplementation;
 import com.fatec.techcollie.service.exception.BadRequestException;
-import com.fatec.techcollie.web.dto.user.UserAdditionalDTO;
+import com.fatec.techcollie.web.dto.user.UserAdditionalCreateDTO;
 import com.fatec.techcollie.web.dto.user.UserCreateDTO;
+import com.fatec.techcollie.web.dto.user.UserPostResponseDTO;
 import com.fatec.techcollie.web.dto.user.UserResponseDTO;
 
 import java.util.List;
@@ -19,7 +20,13 @@ public class UserMapper {
         return new User(dto);
     }
 
-    public static User toAdditionalUser(UserAdditionalDTO dto) {
+    public static UserPostResponseDTO toUserPostResponseDTO(User user){
+        return new UserPostResponseDTO(
+                user.getId(),user.getUsername(), user.getProfilePicUrl()
+        );
+    }
+
+    public static User toAdditionalUser(UserAdditionalCreateDTO dto) {
         User user = new User();
         if (validateSeniority(dto.seniority())) {
             user.setSeniority(Seniority.valueOf(dto.seniority().toUpperCase()));
