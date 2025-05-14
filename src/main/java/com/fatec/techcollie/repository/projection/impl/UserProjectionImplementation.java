@@ -6,7 +6,7 @@ import com.fatec.techcollie.model.User;
 import com.fatec.techcollie.repository.projection.UserProjection;
 
 import java.time.LocalDate;
-@JsonPropertyOrder({"id", "username", "name", "surname", "email", "birthDate", "seniority", "interestArea", "profileUrl", "address"})
+@JsonPropertyOrder({"id", "username", "name", "surname", "email", "birthDate", "seniority", "interestArea", "profilePictureUrl", "address"})
 public class UserProjectionImplementation implements UserProjection {
 
     private final Integer id;
@@ -17,7 +17,7 @@ public class UserProjectionImplementation implements UserProjection {
     private final LocalDate birthDate;
     private final Address address;
     private String seniority = null;
-    private final String profileUrl;
+    private final String profilePictureUrl;
     private final String interestArea;
 
     @Override
@@ -61,8 +61,8 @@ public class UserProjectionImplementation implements UserProjection {
     }
 
     @Override
-    public String getProfileUrl() {
-        return this.profileUrl;
+    public String getProfilePictureUrl() {
+        return this.profilePictureUrl;
     }
 
     @Override
@@ -81,7 +81,7 @@ public class UserProjectionImplementation implements UserProjection {
         if (user.getSeniority() != null) {
             this.seniority = user.getSeniority().name();
         }
-        this.profileUrl = user.getProfilePicUrl();
+        this.profilePictureUrl = user.getProfilePicUrl();
         this.interestArea = user.getInterestArea();
     }
 }

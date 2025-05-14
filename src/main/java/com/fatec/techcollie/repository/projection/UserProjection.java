@@ -14,6 +14,6 @@ public interface UserProjection {
     LocalDate getBirthDate();
     Address getAddress();
     String getSeniority();
-    String getProfileUrl();
+    String getProfilePictureUrl();
     String getInterestArea();
 }
