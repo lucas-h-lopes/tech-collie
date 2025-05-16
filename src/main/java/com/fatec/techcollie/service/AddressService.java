@@ -47,7 +47,7 @@ public class AddressService {
             logService.insertIntoLog(
                     builder.withEmail(authenticatedEmail)
                             .withTableName(Address.class)
-                            .withRecordId(user.getAddress().getId())
+                            .withRecordId(user.getAddress().getId().toString())
                             .withAction(Action.INSERT)
                             .build()
             );
@@ -81,7 +81,7 @@ public class AddressService {
         logService.insertIntoLog(
                 builder
                         .withAction(Action.UPDATE)
-                        .withRecordId(user.getAddress().getId())
+                        .withRecordId(user.getAddress().getId().toString())
                         .withEmail(authenticatedEmail)
                         .withTableName(Address.class)
                         .build()

@@ -2,6 +2,7 @@ package com.fatec.techcollie.web.mapper;
 
 import com.fatec.techcollie.model.Address;
 import com.fatec.techcollie.web.dto.address.AddressDTO;
+import com.fatec.techcollie.web.dto.address.AddressResponseDTO;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -17,5 +18,12 @@ public class AddressMapper {
         address.setDistrict(dto.district());
         address.setNumber(dto.number());
         return address;
+    }
+
+    public static AddressResponseDTO toResponseDTO(Address address){
+        if(address == null){
+            return null;
+        }
+        return new AddressResponseDTO(address);
     }
 }
