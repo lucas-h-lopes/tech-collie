@@ -30,9 +30,9 @@ public class LogService {
 
     private String getDescription(AuditingLogRequest audit) {
         return switch (audit.getAction()) {
-            case Action.INSERT -> String.format("Registro com id '%d' criado", audit.getRecordId());
-            case Action.UPDATE -> String.format("Registro com id '%d' atualizado", audit.getRecordId());
-            case Action.DELETE -> String.format("Registro com id '%d' excluido", audit.getRecordId());
+            case Action.INSERT -> String.format("Registro com id '%s' criado", audit.getRecordId());
+            case Action.UPDATE -> String.format("Registro com id '%s' atualizado", audit.getRecordId());
+            case Action.DELETE -> String.format("Registro com id '%s' excluido", audit.getRecordId());
         };
     }
 }

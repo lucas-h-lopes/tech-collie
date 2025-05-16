@@ -27,7 +27,7 @@ public class DbSeedingConfig {
 
     @PostConstruct
     public void init() {
-        if (userRepository.findByEmail("default@email.com").isEmpty()) {
+        if (userRepository.findByEmailIgnoreCase("default@email.com").isEmpty()) {
             User user = new User();
             Address address = new Address();
             address.setStreet("Rua Emilio Leao Brambila");

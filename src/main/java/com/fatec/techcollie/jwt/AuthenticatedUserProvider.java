@@ -30,4 +30,12 @@ public class AuthenticatedUserProvider {
 
         return (Integer) query.getSingleResult();
     }
+
+    public String getAuthenticatedUsername(){
+        String authenticatedEmail = getAuthenticatedEmail();
+        Query query = em.createNativeQuery("select username from users u where u.email = ?");
+        query.setParameter(1, authenticatedEmail);
+
+        return (String) query.getSingleResult();
+    }
 }
