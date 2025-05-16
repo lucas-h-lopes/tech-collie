@@ -3,31 +3,21 @@ package com.fatec.techcollie.web.dto.user;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fatec.techcollie.model.User;
 import com.fatec.techcollie.model.enums.Seniority;
-import com.fatec.techcollie.web.dto.address.AddressResponseDTO;
-import com.fatec.techcollie.web.mapper.AddressMapper;
 
-import java.time.LocalDate;
-
-@JsonPropertyOrder({"id", "username", "name", "surname", "email", "birthDate", "seniority", "interestArea", "profilePictureUrl","address"})
-public record UserDetailsDTO(Integer id,
+@JsonPropertyOrder({"id", "username", "name", "surname", "email", "birthDate", "seniority", "interestArea", "profilePictureUrl", "address"})
+public record UserSummaryDTO(Integer id,
                              String username,
                              String name,
                              String surname,
-                             String email,
-                             LocalDate birthDate,
-                             AddressResponseDTO address,
                              Seniority seniority,
                              String interestArea,
                              String profilePictureUrl) {
 
-    public UserDetailsDTO(User user) {
+    public UserSummaryDTO(User user) {
         this(user.getId(),
                 user.getUsername(),
                 user.getName(),
                 user.getSurname(),
-                user.getEmail(),
-                user.getBirthDate(),
-                AddressMapper.toResponseDTO(user.getAddress()),
                 user.getSeniority(),
                 user.getInterestArea(),
                 user.getProfilePicUrl());

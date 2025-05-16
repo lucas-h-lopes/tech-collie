@@ -2,15 +2,15 @@ package com.fatec.techcollie.web.dto.page;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.domain.Page;
 
-import java.util.ArrayList;
 import java.util.List;
 
-@Getter
+@Getter @Setter
 public class PageableDTO {
 
-    private final List<?> content;
+    private List<?> content;
     private final boolean isFirst;
     private final boolean isLast;
     private final Integer totalPages;
@@ -30,6 +30,5 @@ public class PageableDTO {
         this.size = page.getSize();
         this.number = page.getNumber();
         this.numberOfElements = page.getNumberOfElements();
-
     }
 }
