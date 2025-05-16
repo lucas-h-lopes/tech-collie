@@ -1,6 +1,6 @@
 package com.fatec.techcollie.web.dto.user;
 
-public record UserPostResponseDTO(
+public record UserPostSimplifiedResponseDTO(
         Integer id,
         String username,
         String profilePictureUrl

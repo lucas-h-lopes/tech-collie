@@ -7,7 +7,6 @@ public record UserPasswordUpdateDTO(
         String currentPassword,
         @Password(fieldName = "nova senha")
         String newPassword,
-        @Password(fieldName = "confirmação de senha")
         String confirmationPassword
 ) {
 }

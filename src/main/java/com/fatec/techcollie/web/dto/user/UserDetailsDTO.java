@@ -19,9 +19,9 @@ public record UserResponseDTO(Integer id,
                               String interestArea,
                               String profilePictureUrl) {
 
-    public UserResponseDTO(User user){
+    public UserResponseDTO(User user) {
         this(user.getId(),
-                "@"+user.getUsername(),
+                user.getUsername(),
                 user.getName(),
                 user.getSurname(),
                 user.getEmail(),

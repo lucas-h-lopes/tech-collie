@@ -35,13 +35,15 @@ public class JwtUtils {
         return Date.from(dt.atZone(ZoneId.systemDefault()).toInstant());
     }
 
-    public JwtToken generateToken(String email, String role) {
+    public JwtToken generateToken(String email, String role, int userId, String username) {
         Date exp = generateExpDate(new Date());
         String token = Jwts.builder()
                 .expiration(exp)
                 .issuedAt(new Date())
                 .subject(email)
                 .claim("role", role)
+                .claim("userId", userId)
+                .claim("username", username)
                 .signWith(generateSecret())
                 .header()
                 .add("typ", "JWT")
@@ -55,7 +57,7 @@ public class JwtUtils {
                     .verifyWith(generateSecret())
                     .build().parseSignedClaims(removeBearer(token))
                     .getPayload();
-        } catch (JwtException e) {
+        } catch (Exception e) {
             log.info("Falha na geração do token ", e);
         }
         return null;

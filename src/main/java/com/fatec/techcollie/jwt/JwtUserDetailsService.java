@@ -22,9 +22,9 @@ public class JwtUserDetailsService implements UserDetailsService {
         return new JwtUserDetails(user);
     }
 
-    public JwtToken generateToken(String username) {
-        UserRole role = userService.getByEmail(username).getRole();
-        return utils.generateToken(username, role.name());
+    public JwtToken generateToken(String email) {
+        User user = userService.getByEmail(email);
+        return utils.generateToken(email, user.getRole().name(), user.getId(), user.getUsername());
     }
 
     public boolean isTokenValid(String token){
