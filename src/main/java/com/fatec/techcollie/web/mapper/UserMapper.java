@@ -4,12 +4,8 @@ import com.fatec.techcollie.model.User;
 import com.fatec.techcollie.model.enums.Seniority;
 import com.fatec.techcollie.repository.projection.impl.UserProjectionImplementation;
 import com.fatec.techcollie.service.exception.BadRequestException;
-import com.fatec.techcollie.web.dto.user.UserAdditionalCreateDTO;
-import com.fatec.techcollie.web.dto.user.UserCreateDTO;
-import com.fatec.techcollie.web.dto.user.UserPostResponseDTO;
-import com.fatec.techcollie.web.dto.user.UserResponseDTO;
 
-import java.util.List;
+import com.fatec.techcollie.web.dto.user.*;
 
 public class UserMapper {
 
@@ -20,13 +16,17 @@ public class UserMapper {
         return new User(dto);
     }
 
-    public static UserPostResponseDTO toUserPostResponseDTO(User user){
-        return new UserPostResponseDTO(
+    public static UserBasicDTO toBasicUser(User user){
+        return new UserBasicDTO(
                 user.getId(),user.getUsername(), user.getProfilePicUrl()
         );
     }
 
-    public static User toAdditionalUser(UserAdditionalCreateDTO dto) {
+    public static UserSummaryDTO toUserSummaryDto(User user){
+        return new UserSummaryDTO(user);
+    }
+
+    public static User toAdditionalUser(UserAdditionalDTO dto) {
         User user = new User();
         if (validateSeniority(dto.seniority())) {
             user.setSeniority(Seniority.valueOf(dto.seniority().toUpperCase()));
@@ -40,12 +40,8 @@ public class UserMapper {
         return user;
     }
 
-    public static UserResponseDTO toResponseDto(User user) {
-        return new UserResponseDTO(user);
-    }
-
-    public static List<UserResponseDTO> toResponseDtoList(List<User> users) {
-        return users.stream().map(UserMapper::toResponseDto).toList();
+    public static UserDetailsDTO toUserDetailsDto(User user) {
+        return new UserDetailsDTO(user);
     }
 
     public static UserProjectionImplementation toUserProjection(User user) {

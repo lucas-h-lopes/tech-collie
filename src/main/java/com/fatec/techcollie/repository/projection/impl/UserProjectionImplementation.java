@@ -1,11 +1,9 @@
 package com.fatec.techcollie.repository.projection.impl;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fatec.techcollie.model.Address;
 import com.fatec.techcollie.model.User;
 import com.fatec.techcollie.repository.projection.UserProjection;
 
-import java.time.LocalDate;
 @JsonPropertyOrder({"id", "username", "name", "surname", "email", "birthDate", "seniority", "interestArea", "profilePictureUrl", "address"})
 public class UserProjectionImplementation implements UserProjection {
 
@@ -13,9 +11,6 @@ public class UserProjectionImplementation implements UserProjection {
     private final String username;
     private final String name;
     private final String surname;
-    private final String email;
-    private final LocalDate birthDate;
-    private final Address address;
     private String seniority = null;
     private final String profilePictureUrl;
     private final String interestArea;
@@ -41,21 +36,6 @@ public class UserProjectionImplementation implements UserProjection {
     }
 
     @Override
-    public String getEmail() {
-        return this.email;
-    }
-
-    @Override
-    public LocalDate getBirthDate() {
-        return this.birthDate;
-    }
-
-    @Override
-    public Address getAddress() {
-        return this.address;
-    }
-
-    @Override
     public String getSeniority() {
         return this.seniority;
     }
@@ -75,9 +55,6 @@ public class UserProjectionImplementation implements UserProjection {
         this.username = user.getUsername();
         this.name = user.getName();
         this.surname = user.getSurname();
-        this.email = user.getEmail();
-        this.birthDate = user.getBirthDate();
-        this.address = user.getAddress();
         if (user.getSeniority() != null) {
             this.seniority = user.getSeniority().name();
         }

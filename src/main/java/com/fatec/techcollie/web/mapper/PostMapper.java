@@ -12,14 +12,14 @@ public class PostMapper {
 
     public static Post toPostDTO(PostCreateDTO dto, User authenticatedUser){
         Post post = new Post();
-        post.setContent(dto.content());
+        post.setContent(dto.text());
         post.setUser(authenticatedUser);
         return post;
     }
 
     public static PostResponseDTO toResponseDTO(Post post){
         return new PostResponseDTO(
-                post.getId(), post.getContent(), post.getCreatedAt(), UserMapper.toUserPostResponseDTO(post.getUser())
+                post.getId(), post.getContent(), post.getCreatedAt(), UserMapper.toBasicUser(post.getUser())
         );
     }
 }

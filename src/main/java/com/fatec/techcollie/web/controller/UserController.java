@@ -2,18 +2,19 @@ package com.fatec.techcollie.web.controller;
 
 import com.fatec.techcollie.model.User;
 import com.fatec.techcollie.model.enums.UserRole;
+import com.fatec.techcollie.repository.projection.PostProjection;
 import com.fatec.techcollie.service.AddressService;
+import com.fatec.techcollie.service.PostService;
 import com.fatec.techcollie.service.UserService;
 import com.fatec.techcollie.web.dto.address.AddressDTO;
 import com.fatec.techcollie.web.dto.page.PageableDTO;
-import com.fatec.techcollie.web.dto.user.UserAdditionalCreateDTO;
-import com.fatec.techcollie.web.dto.user.UserCreateDTO;
-import com.fatec.techcollie.web.dto.user.UserPasswordUpdateDTO;
-import com.fatec.techcollie.web.dto.user.UserResponseDTO;
+import com.fatec.techcollie.web.dto.page.WithUserPageableDTO;
+import com.fatec.techcollie.web.dto.user.*;
 import com.fatec.techcollie.web.mapper.AddressMapper;
 import com.fatec.techcollie.web.mapper.PageableMapper;
 import com.fatec.techcollie.web.mapper.UserMapper;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -29,28 +30,29 @@ public class UserController {
 
     private final UserService userService;
     private final AddressService addressService;
+    private final PostService postService;
 
-    public UserController(UserService userService, AddressService addressService) {
+    public UserController(UserService userService, AddressService addressService, PostService postService) {
         this.userService = userService;
         this.addressService = addressService;
+        this.postService = postService;
     }
 
     @PostMapping
-    public ResponseEntity<UserResponseDTO> insertCommon(@RequestBody @Valid UserCreateDTO dto) {
+    public ResponseEntity<UserDetailsDTO> insertCommon(@RequestBody @Valid UserCreateDTO dto) {
         return createUser(dto, UserRole.MINIMUM_ACCESS);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/admin")
-    public ResponseEntity<UserResponseDTO> insertAdmin(@RequestBody @Valid UserCreateDTO dto) {
+    public ResponseEntity<UserDetailsDTO> insertAdmin(@RequestBody @Valid UserCreateDTO dto) {
         return createUser(dto, UserRole.ADMIN);
     }
 
-    @PreAuthorize("hasAuthority('ADMIN') or (hasAuthority('MINIMUM_ACCESS') and #id == authentication.principal.id)")
-    @GetMapping("/{id}")
-    public ResponseEntity<UserResponseDTO> getById(@PathVariable Integer id) {
-        User user = userService.getById(id);
-        return ResponseEntity.ok(new UserResponseDTO(user));
+    @PreAuthorize(value = "hasAnyAuthority('ADMIN','MINIMUM_ACCESS')")
+    @GetMapping("/{identifier}")
+    public ResponseEntity<?> getByIdentifier(@PathVariable String identifier) {
+        return ResponseEntity.ok(userService.getUserBasedOnIdentifier(identifier));
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -80,7 +82,7 @@ public class UserController {
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'MINIMUM_ACCESS')")
     @PatchMapping("/me")
-    public ResponseEntity<Void> updateAdditional(@RequestBody @Valid UserAdditionalCreateDTO dto) {
+    public ResponseEntity<Void> updateAdditional(@RequestBody @Valid UserAdditionalDTO dto) {
         userService.updateAdditional(UserMapper.toAdditionalUser(dto));
         return ResponseEntity.noContent()
                 .build();
@@ -88,13 +90,26 @@ public class UserController {
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'MINIMUM_ACCESS')")
     @PutMapping("/me/password")
-    public ResponseEntity<Void> updatePassword(@RequestBody @Valid UserPasswordUpdateDTO dto) {
+    public ResponseEntity<Void> updatePassword(@RequestBody @Valid UserPasswordDTO dto) {
         userService.updatePassword(dto.currentPassword(), dto.newPassword(), dto.confirmationPassword());
         return ResponseEntity.noContent()
                 .build();
     }
 
-    private ResponseEntity<UserResponseDTO> createUser(UserCreateDTO dto, UserRole role) {
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'MINIMUM_ACCESS')")
+    @GetMapping("/{id}/posts")
+    public ResponseEntity<WithUserPageableDTO> getAllPosts(@PathVariable Integer id, Pageable pageable) {
+        User user = userService.getById(id);
+        UserBasicDTO simplifiedUser = UserMapper.toBasicUser(user);
+
+        Page<PostProjection> page = (postService.getByUser(user, pageable));
+
+        WithUserPageableDTO pageableDto = PageableMapper.toUserDTO(page, simplifiedUser);
+
+        return ResponseEntity.ok(pageableDto);
+    }
+
+    private ResponseEntity<UserDetailsDTO> createUser(UserCreateDTO dto, UserRole role) {
         User user = UserMapper.toUser(dto);
         user.setRole(role);
         userService.insert(user);
@@ -103,7 +118,7 @@ public class UserController {
                 .path("/{id}")
                 .buildAndExpand(user.getId())
                 .toUri();
-        UserResponseDTO response = UserMapper.toResponseDto(user);
+        UserDetailsDTO response = UserMapper.toUserDetailsDto(user);
         return ResponseEntity.created(uri).body(response);
     }
 }

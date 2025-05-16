@@ -13,7 +13,6 @@ import com.fatec.techcollie.service.exception.NotFoundException;
 import com.fatec.techcollie.service.exception.UniqueViolationException;
 import com.fatec.techcollie.web.mapper.UserMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Page;
@@ -45,11 +44,11 @@ public class UserService {
 
     @Transactional
     public User insert(User user) {
-        if(userRepository.existsByEmail(user.getEmail())){
+        if (userRepository.existsByEmailIgnoreCase(user.getEmail())) {
             throw new UniqueViolationException("Email já cadastrado no sistema");
         }
 
-        if(userRepository.existsByUsername(user.getUsername())){
+        if (userRepository.existsByUsernameIgnoreCase(user.getUsername())) {
             throw new UniqueViolationException("Nome de usuário já cadastrado no sistema");
         }
 
@@ -64,7 +63,7 @@ public class UserService {
             logService.insertIntoLog(
                     builder.withAction(Action.INSERT)
                             .withEmail(authenticatedEmail)
-                            .withRecordId(savedUser.getId())
+                            .withRecordId(savedUser.getId().toString())
                             .withTableName(User.class)
                             .build()
             );
@@ -83,6 +82,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public Page<UserProjection> findAll(Pageable pageable, String firstName, String surname, String username) {
         User user = new User();
+        user.setRole(null);
         user.setName(firstName);
         user.setSurname(surname);
         user.setUsername(username);
@@ -95,6 +95,7 @@ public class UserService {
         Example<User> example = Example.of(user, matcher);
 
         Page<User> projections = userRepository.findAll(example, pageable);
+
         return projections.map(UserMapper::toUserProjection);
     }
 
@@ -109,7 +110,7 @@ public class UserService {
             logService.insertIntoLog(
                     builder.withAction(Action.DELETE)
                             .withEmail(authenticatedEmail)
-                            .withRecordId(oldId)
+                            .withRecordId(oldId.toString())
                             .withTableName(User.class)
                             .build()
             );
@@ -128,7 +129,7 @@ public class UserService {
                 builder.withAction(Action.UPDATE)
                         .withTableName(User.class)
                         .withEmail(authenticatedEmail)
-                        .withRecordId(user.getId())
+                        .withRecordId(user.getId().toString())
                         .build()
         );
         formatNonNull(user, additionalUser);
@@ -158,13 +159,39 @@ public class UserService {
                 builder.withAction(Action.UPDATE)
                         .withTableName(User.class)
                         .withEmail(authenticatedEmail)
-                        .withRecordId(user.getId())
+                        .withRecordId(user.getId().toString())
                         .build()
         );
     }
 
+    public Object getUserBasedOnIdentifier(String identifier) {
+        try {
+            int intUserId = Integer.parseInt(identifier);
+            int authenticatedId = provider.getAuthenticatedId();
+            User user = getById(intUserId);
+
+            if (authenticatedId == intUserId) {
+                return UserMapper.toUserDetailsDto(user);
+            }
+            return UserMapper.toUserSummaryDto(user);
+        } catch (NumberFormatException e) {
+            User user = getByUsername(identifier);
+            String authenticatedEmail = provider.getAuthenticatedUsername();
+
+            if (identifier.equalsIgnoreCase(authenticatedEmail)) {
+                return UserMapper.toUserDetailsDto(user);
+            }
+            return UserMapper.toUserSummaryDto(user);
+        }
+    }
+
     public User getByEmail(String email) {
-        return userRepository.findByEmail(email)
+        return userRepository.findByEmailIgnoreCase(email)
+                .orElseThrow(() -> new NotFoundException("Usuário não encontrado"));
+    }
+
+    public User getByUsername(String username) {
+        return userRepository.findByUsername(username)
                 .orElseThrow(() -> new NotFoundException("Usuário não encontrado"));
     }
 

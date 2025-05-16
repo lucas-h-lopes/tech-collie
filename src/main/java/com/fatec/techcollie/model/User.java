@@ -60,7 +60,7 @@ public class User implements Serializable {
     @Column(name = "role")
     private UserRole role = UserRole.MINIMUM_ACCESS;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     private List<Post> posts;
 
     @CreatedBy
