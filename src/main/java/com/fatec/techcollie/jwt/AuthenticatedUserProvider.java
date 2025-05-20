@@ -1,41 +1,38 @@
 package com.fatec.techcollie.jwt;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.Query;
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
 
-@NoArgsConstructor
-@Component
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class AuthenticatedUserProvider {
 
-    @Autowired
-    private EntityManager em;
-
-    public String getAuthenticatedEmail() {
-        Authentication authentication =
-                SecurityContextHolder
-                        .getContext().getAuthentication();
+    public static String getAuthenticatedEmail() {
+        Authentication authentication = getAuthentication();
+        System.out.println("Chamada a Authenticated Email: " + authentication.getName());
         return authentication instanceof AnonymousAuthenticationToken ? "Anonimo" : authentication.getName();
     }
 
-    public Integer getAuthenticatedId() {
-        String authenticatedEmail = getAuthenticatedEmail();
-        Query query = em.createNativeQuery("select id from users u where u.email = ?");
-        query.setParameter(1, authenticatedEmail);
-
-        return (Integer) query.getSingleResult();
+    public static Integer getAuthenticatedId() {
+        JwtUserDetails details = getDetails();
+        System.out.println("Chamada a Authenticated Id: " + details.getId());
+        return details.getId();
     }
 
-    public String getAuthenticatedUsername(){
-        String authenticatedEmail = getAuthenticatedEmail();
-        Query query = em.createNativeQuery("select username from users u where u.email = ?");
-        query.setParameter(1, authenticatedEmail);
+    public static String getAuthenticatedUsername() {
+        JwtUserDetails details = getDetails();
+        System.out.println("Chamada a Authenticated Username: " + details.getUsername());
+        return details.getUsername();
+    }
 
-        return (String) query.getSingleResult();
+    private static Authentication getAuthentication() {
+        return SecurityContextHolder
+                .getContext().getAuthentication();
+    }
+
+    private static JwtUserDetails getDetails(){
+        return (JwtUserDetails) getAuthentication().getPrincipal();
     }
 }

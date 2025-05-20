@@ -2,7 +2,6 @@ package com.fatec.techcollie.web.mapper;
 
 import com.fatec.techcollie.model.User;
 import com.fatec.techcollie.model.enums.Seniority;
-import com.fatec.techcollie.repository.projection.impl.UserProjectionImplementation;
 import com.fatec.techcollie.service.exception.BadRequestException;
 
 import com.fatec.techcollie.web.dto.user.*;
@@ -42,10 +41,6 @@ public class UserMapper {
 
     public static UserDetailsDTO toUserDetailsDto(User user) {
         return new UserDetailsDTO(user);
-    }
-
-    public static UserProjectionImplementation toUserProjection(User user) {
-        return new UserProjectionImplementation(user);
     }
 
     private static boolean validateSeniority(String seniority) {

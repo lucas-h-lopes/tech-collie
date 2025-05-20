@@ -17,32 +17,28 @@ public class AddressService {
     private final UserService userService;
     private final LogService logService;
     private final AuditingLogRequestBuilder builder;
-    private final AuthenticatedUserProvider provider;
 
-    public AddressService(AddressRepository addressRepository, UserService userService, LogService logService, AuthenticatedUserProvider provider) {
+    public AddressService(AddressRepository addressRepository, UserService userService, LogService logService) {
         this.addressRepository = addressRepository;
         this.userService = userService;
         this.logService = logService;
         this.builder = new AuditingLogRequestBuilder();
-        this.provider = provider;
     }
 
     @Transactional
     public Address update(Address address) {
-        User user = userService.getById(provider.getAuthenticatedId());
+        User user = userService.getById(AuthenticatedUserProvider.getAuthenticatedId());
 
-        updateNonNull(user, address);
+        updateNonNull(user, address, user.getEmail());
 
         return user.getAddress();
     }
 
-    private void updateNonNull(User user, Address newAddress) {
+    private void updateNonNull(User user, Address newAddress, String authenticatedEmail) {
         if (user.getAddress() == null) {
             user.setAddress(newAddress);
 
             addressRepository.save(user.getAddress());
-
-            String authenticatedEmail = provider.getAuthenticatedEmail();
 
             logService.insertIntoLog(
                     builder.withEmail(authenticatedEmail)
@@ -51,6 +47,7 @@ public class AddressService {
                             .withAction(Action.INSERT)
                             .build()
             );
+
             return;
         }
         Address uAddress = user.getAddress();
@@ -74,9 +71,6 @@ public class AddressService {
         if (uAddress.getNumber() == null || newAddress.getNumber() != null) {
             uAddress.setNumber(newAddress.getNumber());
         }
-
-
-        String authenticatedEmail = provider.getAuthenticatedEmail();
 
         logService.insertIntoLog(
                 builder

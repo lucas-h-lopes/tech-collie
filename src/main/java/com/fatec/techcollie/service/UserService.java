@@ -6,11 +6,11 @@ import com.fatec.techcollie.logging.LogService;
 import com.fatec.techcollie.model.User;
 import com.fatec.techcollie.model.enums.Action;
 import com.fatec.techcollie.repository.UserRepository;
-import com.fatec.techcollie.repository.projection.UserProjection;
 import com.fatec.techcollie.service.exception.BadRequestException;
 import com.fatec.techcollie.service.exception.InternalServerErrorException;
 import com.fatec.techcollie.service.exception.NotFoundException;
 import com.fatec.techcollie.service.exception.UniqueViolationException;
+import com.fatec.techcollie.web.dto.user.UserSummaryDTO;
 import com.fatec.techcollie.web.mapper.UserMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Example;
@@ -32,14 +32,12 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final LogService logService;
     private final AuditingLogRequestBuilder builder;
-    private final AuthenticatedUserProvider provider;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, LogService logService, AuthenticatedUserProvider provider) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, LogService logService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.logService = logService;
         this.builder = new AuditingLogRequestBuilder();
-        this.provider = provider;
     }
 
     @Transactional
@@ -58,7 +56,7 @@ public class UserService {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
             User savedUser = userRepository.save(user);
 
-            String authenticatedEmail = provider.getAuthenticatedEmail();
+            String authenticatedEmail = AuthenticatedUserProvider.getAuthenticatedEmail();
 
             logService.insertIntoLog(
                     builder.withAction(Action.INSERT)
@@ -80,7 +78,7 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public Page<UserProjection> findAll(Pageable pageable, String firstName, String surname, String username) {
+    public Page<UserSummaryDTO> findAll(Pageable pageable, String firstName, String surname, String username) {
         User user = new User();
         user.setRole(null);
         user.setName(firstName);
@@ -96,7 +94,7 @@ public class UserService {
 
         Page<User> projections = userRepository.findAll(example, pageable);
 
-        return projections.map(UserMapper::toUserProjection);
+        return projections.map(UserMapper::toUserSummaryDto);
     }
 
     @Transactional
@@ -105,7 +103,7 @@ public class UserService {
         try {
             userRepository.deleteById(oldId);
 
-            String authenticatedEmail = provider.getAuthenticatedEmail();
+            String authenticatedEmail = AuthenticatedUserProvider.getAuthenticatedEmail();
 
             logService.insertIntoLog(
                     builder.withAction(Action.DELETE)
@@ -114,6 +112,7 @@ public class UserService {
                             .withTableName(User.class)
                             .build()
             );
+
         } catch (Exception e) {
             throw new InternalServerErrorException("Algo deu errado durante o processamento da requisição");
         }
@@ -121,17 +120,16 @@ public class UserService {
 
     @Transactional
     public void updateAdditional(User additionalUser) {
-        User user = getById(provider.getAuthenticatedId());
-
-        String authenticatedEmail = provider.getAuthenticatedEmail();
+        User user = getById(AuthenticatedUserProvider.getAuthenticatedId());
 
         logService.insertIntoLog(
                 builder.withAction(Action.UPDATE)
                         .withTableName(User.class)
-                        .withEmail(authenticatedEmail)
+                        .withEmail(user.getEmail())
                         .withRecordId(user.getId().toString())
                         .build()
         );
+
         formatNonNull(user, additionalUser);
     }
 
@@ -141,7 +139,7 @@ public class UserService {
             throw new BadRequestException("A nova senha e confirmação de senha devem ser iguais");
         }
 
-        User user = getById(provider.getAuthenticatedId());
+        User user = getById(AuthenticatedUserProvider.getAuthenticatedId());
 
         if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
             throw new BadRequestException("As senhas não conferem");
@@ -153,12 +151,10 @@ public class UserService {
 
         user.setPassword(passwordEncoder.encode(newPassword));
 
-        String authenticatedEmail = provider.getAuthenticatedEmail();
-
         logService.insertIntoLog(
                 builder.withAction(Action.UPDATE)
                         .withTableName(User.class)
-                        .withEmail(authenticatedEmail)
+                        .withEmail(user.getEmail())
                         .withRecordId(user.getId().toString())
                         .build()
         );
@@ -167,7 +163,7 @@ public class UserService {
     public Object getUserBasedOnIdentifier(String identifier) {
         try {
             int intUserId = Integer.parseInt(identifier);
-            int authenticatedId = provider.getAuthenticatedId();
+            int authenticatedId = AuthenticatedUserProvider.getAuthenticatedId();
             User user = getById(intUserId);
 
             if (authenticatedId == intUserId) {
@@ -176,7 +172,7 @@ public class UserService {
             return UserMapper.toUserSummaryDto(user);
         } catch (NumberFormatException e) {
             User user = getByUsername(identifier);
-            String authenticatedEmail = provider.getAuthenticatedUsername();
+            String authenticatedEmail = AuthenticatedUserProvider.getAuthenticatedUsername();
 
             if (identifier.equalsIgnoreCase(authenticatedEmail)) {
                 return UserMapper.toUserDetailsDto(user);

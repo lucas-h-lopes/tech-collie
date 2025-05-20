@@ -2,13 +2,13 @@ package com.fatec.techcollie.web.controller;
 
 import com.fatec.techcollie.model.User;
 import com.fatec.techcollie.model.enums.UserRole;
-import com.fatec.techcollie.repository.projection.PostProjection;
 import com.fatec.techcollie.service.AddressService;
 import com.fatec.techcollie.service.PostService;
 import com.fatec.techcollie.service.UserService;
 import com.fatec.techcollie.web.dto.address.AddressDTO;
 import com.fatec.techcollie.web.dto.page.PageableDTO;
 import com.fatec.techcollie.web.dto.page.WithUserPageableDTO;
+import com.fatec.techcollie.web.dto.post.PostBasicDTO;
 import com.fatec.techcollie.web.dto.user.*;
 import com.fatec.techcollie.web.mapper.AddressMapper;
 import com.fatec.techcollie.web.mapper.PageableMapper;
@@ -16,6 +16,7 @@ import com.fatec.techcollie.web.mapper.UserMapper;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -57,7 +58,7 @@ public class UserController {
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping
-    public ResponseEntity<PageableDTO> findAll(@PageableDefault(sort = "name") Pageable pageable,
+    public ResponseEntity<PageableDTO> findAll(@PageableDefault(sort = "name", size = 5) Pageable pageable,
                                                @RequestParam(name = "firstName", required = false) String firstName,
                                                @RequestParam(name = "surname", required = false) String surname,
                                                @RequestParam(name = "username", required = false) String username) {
@@ -98,11 +99,11 @@ public class UserController {
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'MINIMUM_ACCESS')")
     @GetMapping("/{id}/posts")
-    public ResponseEntity<WithUserPageableDTO> getAllPosts(@PathVariable Integer id, Pageable pageable) {
+    public ResponseEntity<WithUserPageableDTO> getAllPosts(@PathVariable Integer id, @PageableDefault(size = 5, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         User user = userService.getById(id);
         UserBasicDTO simplifiedUser = UserMapper.toBasicUser(user);
 
-        Page<PostProjection> page = (postService.getByUser(user, pageable));
+        Page<PostBasicDTO> page = (postService.getByUser(user, pageable));
 
         WithUserPageableDTO pageableDto = PageableMapper.toUserDTO(page, simplifiedUser);
 

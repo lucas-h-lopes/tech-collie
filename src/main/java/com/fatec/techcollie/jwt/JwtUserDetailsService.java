@@ -1,10 +1,8 @@
 package com.fatec.techcollie.jwt;
 
 import com.fatec.techcollie.model.User;
-import com.fatec.techcollie.model.enums.UserRole;
 import com.fatec.techcollie.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
